@@ -1,5 +1,6 @@
     package VNNet.VNNet.Config;
 
+    import VNNet.VNNet.JwtAuthenticationFilter;
     import VNNet.VNNet.Service.CustomUserDetailsService;
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
@@ -7,18 +8,22 @@
     import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
     import org.springframework.security.config.annotation.web.builders.HttpSecurity;
     import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+    import org.springframework.security.config.http.SessionCreationPolicy;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.security.web.SecurityFilterChain;
+    import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
     import org.springframework.web.servlet.config.annotation.CorsRegistry;
     import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
     @Configuration
     @EnableWebSecurity
     public class SecurityConfig {
+        private final JwtAuthenticationFilter jwtAuthFilter;
         private final CustomUserDetailsService customUserDetailsService;
 
-        public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        public SecurityConfig(CustomUserDetailsService customUserDetailsService, JwtAuthenticationFilter jwtAuthFilter) {
             this.customUserDetailsService = customUserDetailsService;
+            this.jwtAuthFilter = jwtAuthFilter;
         }
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -28,8 +33,11 @@
                     .cors(cors -> cors.disable())
                     .authorizeHttpRequests(auth -> auth
                             .anyRequest().permitAll()
-                    );
-
+                    )
+                    .sessionManagement(session -> session
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    )
+                    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);;
             return http.build();
         }
 

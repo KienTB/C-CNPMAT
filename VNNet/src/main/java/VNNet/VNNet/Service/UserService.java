@@ -1,10 +1,14 @@
 package VNNet.VNNet.Service;
 
+import VNNet.VNNet.AuthenticationResponse;
 import VNNet.VNNet.Model.User;
 import VNNet.VNNet.Repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,28 +23,28 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private  PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
 
-    public User login(String phoneNumber, String password) {
-        logger.debug("Processing login for phone number: {}", phoneNumber);
+    public AuthenticationResponse login(String phoneNumber, String password) {
+        User user = userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + phoneNumber));
 
-        if (phoneNumber == null || password == null ||
-                phoneNumber.trim().isEmpty() || password.trim().isEmpty()) {
-            logger.error("Phone number or password is empty");
-            throw new IllegalArgumentException("Phone number and password are required");
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BadCredentialsException("Invalid Password");
         }
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+                .withUsername(user.getPhoneNumber())
+                .password(user.getPassword())
+                .authorities("ROLE_" + user.getRole())
+                .build();
 
-        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
-        if (user.isPresent()) {
-            if (passwordEncoder.matches(password, user.get().getPassword())) {
-                logger.info("User found and password matched for phone number: {}", phoneNumber);
-                return user.get();
-            } else {
-                logger.warn("Invalid password for phone number: {}", phoneNumber);
-            }
-        } else {
-            logger.warn("No user found with phone number: {}", phoneNumber);
-        }
-        return null;
+        String jwtToken = jwtService.generateToken(userDetails);
+
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .userId(user.getUserId())
+                .build();
     }
 
     public User registerUser(String phoneNumber, String password, String email, String name, String address) {

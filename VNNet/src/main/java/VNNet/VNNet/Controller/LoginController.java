@@ -1,6 +1,7 @@
 package VNNet.VNNet.Controller;
 
 import VNNet.VNNet.ApiResponse;
+import VNNet.VNNet.AuthenticationResponse;
 import VNNet.VNNet.DTO.LoginRequest;
 import VNNet.VNNet.Model.User;
 import VNNet.VNNet.Service.UserService;
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,16 +23,48 @@ public class LoginController {
     private UserService userService;
 
     @PostMapping(value = "/user/login", produces = "application/json")
-    public ResponseEntity<ApiResponse<User>> login(@RequestBody LoginRequest loginRequest) throws JsonProcessingException {
-            User user = userService.login(loginRequest.getPhoneNumber(), loginRequest.getPassword());
-            if (user != null) {
-                logger.info("Login successful for phone number: {}", loginRequest.getPhoneNumber());
-                return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", user));
-            }
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> login(@RequestBody LoginRequest loginRequest) throws JsonProcessingException {
+        try {
+            logger.info("Login attempt for phone number: {}", loginRequest.getPhoneNumber());
 
-            logger.warn("Invalid login attempt for phone number: {}", loginRequest.getPhoneNumber());
+            AuthenticationResponse authResponse = userService.login(
+                    loginRequest.getPhoneNumber(),
+                    loginRequest.getPassword()
+            );
+
+            logger.info("Login successful for phone number: {}", loginRequest.getPhoneNumber());
+            return ResponseEntity.ok(new ApiResponse<>(
+                    true,
+                    "Login successful",
+                    authResponse
+            ));
+
+        } catch (UsernameNotFoundException e) {
+            logger.warn("User not found for phone number: {}", loginRequest.getPhoneNumber());
             return ResponseEntity.badRequest()
-                    .body(new ApiResponse<>(false, "Invalid phone number or password", null));
+                    .body(new ApiResponse<>(
+                            false,
+                            "User not found",
+                            null
+                    ));
 
+        } catch (BadCredentialsException e) {
+            logger.warn("Invalid password for phone number: {}", loginRequest.getPhoneNumber());
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(
+                            false,
+                            "Invalid password",
+                            null
+                    ));
+
+        } catch (Exception e) {
+            logger.error("Error during login for phone number: {}", loginRequest.getPhoneNumber(), e);
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponse<>(
+                            false,
+                            "An error occurred during login",
+                            null
+                    ));
         }
+    }
     }

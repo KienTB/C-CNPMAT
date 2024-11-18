@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/VNNet.iml" filepath="$PROJECT_DIR$/.idea/VNNet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/VNNet.VNNet.main.iml" filepath="$PROJECT_DIR$/.idea/modules/VNNet.VNNet.main.iml" />
     </modules>
   </component>
 </project>
