@@ -1,4 +1,4 @@
-package VNNet.VNNet;
+package VNNet.VNNet.Config;
 
 import VNNet.VNNet.Service.CustomUserDetailsService;
 import VNNet.VNNet.Service.JwtService;
@@ -49,3 +49,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+//THỰC THI TRƯỚC KHI YÊU CẦU REQUEST ĐƯỢC XỬ LÝ BỞI CONTROLLER

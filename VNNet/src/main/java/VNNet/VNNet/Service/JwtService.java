@@ -20,7 +20,6 @@ import java.util.function.Function;
 public class JwtService {
     private static final String SECRET_KEY = generateSecureSecretKey();
 
-    // Phương thức tạo khóa bí mật an toàn
     private static String generateSecureSecretKey() {
         SecureRandom random = new SecureRandom();
         byte[] keyBytes = new byte[32]; // 256 bit
@@ -77,3 +76,4 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 }
+//TẠO VÀ XÁC THỰC JWT TOKEN

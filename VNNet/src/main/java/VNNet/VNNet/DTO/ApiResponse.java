@@ -1,4 +1,4 @@
-package VNNet.VNNet;
+package VNNet.VNNet.DTO;
 
 import VNNet.VNNet.Model.User;
 import com.fasterxml.jackson.annotation.JsonInclude;

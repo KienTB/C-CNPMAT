@@ -1,4 +1,4 @@
-package VNNet.VNNet;
+package VNNet.VNNet.DTO;
 
 
 import lombok.AllArgsConstructor;

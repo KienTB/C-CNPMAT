@@ -1,6 +1,5 @@
     package VNNet.VNNet.Config;
 
-    import VNNet.VNNet.JwtAuthenticationFilter;
     import VNNet.VNNet.Service.CustomUserDetailsService;
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;

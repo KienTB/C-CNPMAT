@@ -1,6 +1,6 @@
 package VNNet.VNNet.Controller;
 
-import VNNet.VNNet.ApiResponse;
+import VNNet.VNNet.DTO.ApiResponse;
 import VNNet.VNNet.Model.User;
 import VNNet.VNNet.DTO.RegisterRequest;
 import VNNet.VNNet.Service.UserService;

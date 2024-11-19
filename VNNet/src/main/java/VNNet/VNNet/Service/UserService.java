@@ -1,6 +1,6 @@
 package VNNet.VNNet.Service;
 
-import VNNet.VNNet.AuthenticationResponse;
+import VNNet.VNNet.DTO.AuthenticationResponse;
 import VNNet.VNNet.Model.User;
 import VNNet.VNNet.Repository.UserRepository;
 import org.slf4j.Logger;
@@ -9,11 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserService {
