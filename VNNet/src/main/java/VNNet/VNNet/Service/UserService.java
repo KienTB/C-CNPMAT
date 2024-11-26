@@ -33,7 +33,7 @@ public class UserService {
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(user.getPhoneNumber())
                 .password(user.getPassword())
-                .authorities("ROLE_" + user.getRole())
+                .authorities(user.getRole())
                 .build();
 
         String jwtToken = jwtService.generateToken(userDetails);
@@ -44,7 +44,7 @@ public class UserService {
                 .build();
     }
 
-    public User registerUser(String phoneNumber, String password, String email, String name, String address) {
+    public User registerUser(String phoneNumber, String password, String email, String name, String address, String role) {
         logger.debug("Processing user registration for phone number: {}", phoneNumber);
 
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
@@ -65,8 +65,57 @@ public class UserService {
         user.setEmail(email);
         user.setName(name);
         user.setAddress(address);
+        user.setRole(role);
 
-        logger.info("Saving new user with phone number: {}", phoneNumber);
+        logger.info("Saving new user with phone number: {} and role: {}", phoneNumber, role);
         return userRepository.save(user);
+    }
+
+    public AuthenticationResponse changePassword(String phoneNumber, String oldPassword, String newPassword, String confirmPassword) {
+        logger.debug("Processing password change for phone number: {}", phoneNumber);
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("New password is required");
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new IllegalArgumentException("New password and confirm password do not match");
+        }
+
+        User user = userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + phoneNumber));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BadCredentialsException("Current password is incorrect");
+        }
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new IllegalArgumentException("New password must be different from current password");
+        }
+
+        if (newPassword.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Tạo UserDetails mới với mật khẩu đã cập nhật
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+                .withUsername(user.getPhoneNumber())
+                .password(user.getPassword())
+                .authorities(user.getRole())
+                .build();
+
+        // Tạo token mới
+        String jwtToken = jwtService.generateToken(userDetails);
+
+        logger.info("Password successfully changed for user with phone number: {}", phoneNumber);
+
+        // Trả về AuthenticationResponse với token mới
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .userId(user.getUserId())
+                .build();
     }
 }

@@ -1,4 +1,4 @@
-package VNNet.VNNet.DTO;
+package VNNet.VNNet.Request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package VNNet.VNNet.DTO;
+package VNNet.VNNet.Request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,6 +13,8 @@ public class RegisterRequest {
     private String email;
     @JsonProperty("address")
     private String address;
+    @JsonProperty("role")
+    private String role;
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -52,5 +54,13 @@ public class RegisterRequest {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

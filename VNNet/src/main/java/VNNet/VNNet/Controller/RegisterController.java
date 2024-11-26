@@ -2,7 +2,7 @@ package VNNet.VNNet.Controller;
 
 import VNNet.VNNet.DTO.ApiResponse;
 import VNNet.VNNet.Model.User;
-import VNNet.VNNet.DTO.RegisterRequest;
+import VNNet.VNNet.Request.RegisterRequest;
 import VNNet.VNNet.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
@@ -30,13 +30,14 @@ public class RegisterController {
                 registerRequest.getPassword() == null || registerRequest.getPassword().isEmpty() ||
                 registerRequest.getEmail() == null || registerRequest.getEmail().isEmpty() ||
                 registerRequest.getName() == null || registerRequest.getName().isEmpty() ||
-                registerRequest.getAddress() == null || registerRequest.getAddress().isEmpty()) {
+                registerRequest.getAddress() == null || registerRequest.getAddress().isEmpty() ||
+                registerRequest.getRole() == null || registerRequest.getRole().isEmpty()) {
             logger.warn("Please complete all fields");
             return ResponseEntity.badRequest()
                     .body(new ApiResponse<>(false, "Please complete all required fields", null));
         }
 
-        User newUser = userService.registerUser(registerRequest.getPhoneNumber(), registerRequest.getPassword(), registerRequest.getEmail(), registerRequest.getName(), registerRequest.getAddress());
+        User newUser = userService.registerUser(registerRequest.getPhoneNumber(), registerRequest.getPassword(), registerRequest.getEmail(), registerRequest.getName(), registerRequest.getAddress(), registerRequest.getRole());
 
         if (newUser == null) {
             logger.error("Failed to register user");

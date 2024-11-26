@@ -31,7 +31,12 @@
                     .csrf(csrf -> csrf.disable())
                     .cors(cors -> cors.disable())
                     .authorizeHttpRequests(auth -> auth
-                            .anyRequest().permitAll()
+                            .requestMatchers("/api/user/login", "/api/user/register").permitAll()
+                            .requestMatchers("/api/admin/**").hasRole("admin")
+                            .requestMatchers("/api/teacher/**").hasRole("teacher")
+                            .requestMatchers("/api/parent/**").hasRole("parent")
+                            .requestMatchers("/api/user/change-password").authenticated()
+                            .anyRequest().authenticated()
                     )
                     .sessionManagement(session -> session
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

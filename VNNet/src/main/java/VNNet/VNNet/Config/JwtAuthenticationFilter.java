@@ -30,8 +30,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
+        //1.lấy header từ authorization
         String authHeader = request.getHeader("Authorization");
-        
+        //2.kiểm tra format hợp lệ
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
             String phoneNumber = jwtService.extractPhoneNumber(jwt);

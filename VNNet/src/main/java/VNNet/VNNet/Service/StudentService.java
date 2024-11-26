@@ -13,4 +13,10 @@ public class StudentService {
     public Student findStudentById(int studentId) {
         return studentRepository.findById(studentId).orElse(null);
     }
+    public boolean isStudentBelongToUser(Student student, String phoneNumber) {
+        if (student == null || student.getUser() == null) {
+            return false;
+        }
+        return student.getUser().getPhoneNumber().equals(phoneNumber);
+    }
 }
