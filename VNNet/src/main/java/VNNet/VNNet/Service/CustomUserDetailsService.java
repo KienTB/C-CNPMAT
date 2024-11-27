@@ -27,7 +27,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + phoneNumber));
 
-        return org.springframework.security.core.userdetails.User.withUsername(user.getPhoneNumber())
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getPhoneNumber())
                 .password(user.getPassword())
                 .authorities(user.getRole())
                 .build();

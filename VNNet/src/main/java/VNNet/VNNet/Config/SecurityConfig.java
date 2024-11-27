@@ -12,8 +12,14 @@
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.security.web.SecurityFilterChain;
     import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+    import org.springframework.web.cors.CorsConfiguration;
+    import org.springframework.web.cors.CorsConfigurationSource;
+    import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
     import org.springframework.web.servlet.config.annotation.CorsRegistry;
     import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+    import java.util.Arrays;
+
     @Configuration
     @EnableWebSecurity
     public class SecurityConfig {
@@ -29,13 +35,14 @@
             http
                     .formLogin(formLogin -> formLogin.disable())
                     .csrf(csrf -> csrf.disable())
-                    .cors(cors -> cors.disable())
+                    .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/api/user/login", "/api/user/register").permitAll()
                             .requestMatchers("/api/admin/**").hasRole("admin")
                             .requestMatchers("/api/teacher/**").hasRole("teacher")
                             .requestMatchers("/api/parent/**").hasRole("parent")
                             .requestMatchers("/api/user/change-password").authenticated()
+                            .requestMatchers("/api/user/profile").authenticated()
                             .anyRequest().authenticated()
                     )
                     .sessionManagement(session -> session
@@ -43,6 +50,19 @@
                     )
                     .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);;
             return http.build();
+        }
+
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+            CorsConfiguration configuration = new CorsConfiguration();
+            configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
+            configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+            configuration.setAllowCredentials(true);
+
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", configuration);
+            return source;
         }
 
         @Bean

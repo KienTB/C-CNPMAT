@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -107,12 +109,10 @@ public class UserService {
                 .authorities(user.getRole())
                 .build();
 
-        // Tạo token mới
         String jwtToken = jwtService.generateToken(userDetails);
 
         logger.info("Password successfully changed for user with phone number: {}", phoneNumber);
 
-        // Trả về AuthenticationResponse với token mới
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .userId(user.getUserId())
