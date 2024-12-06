@@ -1,6 +1,5 @@
-package VNNet.VNNet.DTO;
+package VNNet.VNNet.Response;
 
-import VNNet.VNNet.Model.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

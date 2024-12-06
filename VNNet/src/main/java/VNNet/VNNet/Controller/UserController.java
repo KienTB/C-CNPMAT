@@ -1,6 +1,6 @@
 package VNNet.VNNet.Controller;
 
-import VNNet.VNNet.DTO.ApiResponse;
+import VNNet.VNNet.Response.ApiResponse;
 import VNNet.VNNet.Model.User;
 import VNNet.VNNet.Repository.UserRepository;
 import VNNet.VNNet.Service.UserService;
@@ -13,9 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController

@@ -29,10 +29,5 @@ public class Grade {
     @Column(nullable = false, length = 20)
     private String term;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
 }
 

@@ -1,7 +1,7 @@
 package VNNet.VNNet.Controller;
 
-import VNNet.VNNet.DTO.ApiResponse;
-import VNNet.VNNet.DTO.AuthenticationResponse;
+import VNNet.VNNet.Response.ApiResponse;
+import VNNet.VNNet.Response.AuthenticationResponse;
 import VNNet.VNNet.Request.LoginRequest;
 import VNNet.VNNet.Service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;

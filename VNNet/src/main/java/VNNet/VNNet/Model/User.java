@@ -3,12 +3,14 @@ package VNNet.VNNet.Model;
 import jakarta.persistence.*;
 
 import java.security.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
     @Column(name = "phone_number")
     private String phoneNumber;
@@ -26,6 +28,9 @@ public class User {
     private Timestamp createdAt;
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    @Column(name = "teacher_id")
+    private Long teacherId;
 
     public Long getUserId() {
         return userId;
@@ -97,5 +102,13 @@ public class User {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Long getTeacherId() {
+        return teacherId;
+    }
+
+    public void setTeacherId(Long teacherId) {
+        this.teacherId = teacherId;
     }
 }

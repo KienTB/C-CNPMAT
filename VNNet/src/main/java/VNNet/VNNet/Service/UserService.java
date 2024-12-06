@@ -1,14 +1,12 @@
 package VNNet.VNNet.Service;
 
-import VNNet.VNNet.DTO.AuthenticationResponse;
+import VNNet.VNNet.Response.AuthenticationResponse;
 import VNNet.VNNet.Model.User;
 import VNNet.VNNet.Repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +30,7 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Invalid Password");
         }
+
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(user.getPhoneNumber())
                 .password(user.getPassword())
@@ -43,6 +42,9 @@ public class UserService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .userId(user.getUserId())
+                .role(user.getRole())
+                .name(user.getName())
+                .teacherId(user.getTeacherId())
                 .build();
     }
 
@@ -61,6 +63,10 @@ public class UserService {
             throw new IllegalArgumentException("Phone number already registered");
         }
 
+        if(!isValidRole(role)) {
+            throw new IllegalArgumentException("Invalid role. Must be one of: parent, teacher, admin");
+        }
+
         User user = new User();
         user.setPhoneNumber(phoneNumber);
         user.setPassword(passwordEncoder.encode(password));
@@ -71,6 +77,10 @@ public class UserService {
 
         logger.info("Saving new user with phone number: {} and role: {}", phoneNumber, role);
         return userRepository.save(user);
+    }
+
+    private boolean isValidRole(String role) {
+        return "parent".equals(role) || "teacher".equals(role) || "admin".equals(role);
     }
 
     public AuthenticationResponse changePassword(String phoneNumber, String oldPassword, String newPassword, String confirmPassword) {
@@ -116,6 +126,8 @@ public class UserService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .userId(user.getUserId())
+                .role(user.getRole())
+                .name(user.getName())
                 .build();
     }
 }

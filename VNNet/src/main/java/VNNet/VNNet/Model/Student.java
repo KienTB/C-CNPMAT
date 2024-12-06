@@ -24,11 +24,23 @@ public class Student {
     private String class_name;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "userId")
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "teacher_id", referencedColumnName = "teacher_id")
+    private User teacher;
 
     @Column(name = "address")
     private String address;
+
+    public User getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(User teacher) {
+        this.teacher = teacher;
+    }
 
     public String getClass_name() {
         return class_name;

@@ -38,11 +38,13 @@
                     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/api/user/login", "/api/user/register").permitAll()
+
                             .requestMatchers("/api/admin/**").hasAuthority("admin")
                             .requestMatchers("/api/teacher/**").hasAuthority("teacher")
                             .requestMatchers("/api/parent/**").hasAuthority("parent")
-                            .requestMatchers("/api/user/change-password").authenticated()
-                            .requestMatchers("/api/user/profile").authenticated()
+
+                            .requestMatchers("/api/user/change-password", "/api/user/profile").authenticated()
+
                             .anyRequest().authenticated()
                     )
                     .sessionManagement(session -> session

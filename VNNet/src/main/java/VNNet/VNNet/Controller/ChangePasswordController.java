@@ -1,7 +1,7 @@
 package VNNet.VNNet.Controller;
 
-import VNNet.VNNet.DTO.ApiResponse;
-import VNNet.VNNet.DTO.AuthenticationResponse;
+import VNNet.VNNet.Response.ApiResponse;
+import VNNet.VNNet.Response.AuthenticationResponse;
 import VNNet.VNNet.Request.ChangePasswordRequest;
 import VNNet.VNNet.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

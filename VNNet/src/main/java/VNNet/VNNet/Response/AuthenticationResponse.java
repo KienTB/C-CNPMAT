@@ -1,4 +1,4 @@
-package VNNet.VNNet.DTO;
+package VNNet.VNNet.Response;
 
 
 import lombok.AllArgsConstructor;
@@ -13,5 +13,8 @@ import lombok.NoArgsConstructor;
 public class AuthenticationResponse {
     private String token;
     private Long userId;
+    private String role;
+    private String name;
     private String refreshToken;
+    private Long teacherId;
 }
