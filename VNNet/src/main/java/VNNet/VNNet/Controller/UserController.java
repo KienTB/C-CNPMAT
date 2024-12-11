@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -55,5 +56,38 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @GetMapping("/admin/get/all/users")
+    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            ApiResponse<List<User>> response = new ApiResponse<>(false, "User not authenticated", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        String role = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("");
+
+        if (!"admin".equals(role)) {
+            ApiResponse<List<User>> response = new ApiResponse<>(false, "Access denied. Admin role required.", null);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        try {
+            List<User> users = (List<User>) userRepository.findAll();
+            users.forEach(user -> user.setPassword(null));
+
+            ApiResponse<List<User>> response = new ApiResponse<>(true, "Users retrieved successfully", users);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error retrieving users", e);
+            ApiResponse<List<User>> response = new ApiResponse<>(false, "Error retrieving users", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }
 

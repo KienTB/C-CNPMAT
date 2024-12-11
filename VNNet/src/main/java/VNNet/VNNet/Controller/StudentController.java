@@ -1,8 +1,15 @@
 package VNNet.VNNet.Controller;
 
+import VNNet.VNNet.Model.User;
+import VNNet.VNNet.Repository.StudentRepository;
+import VNNet.VNNet.Repository.UserRepository;
+import VNNet.VNNet.Request.StudentRegisterRequest;
 import VNNet.VNNet.Response.ApiResponse;
 import VNNet.VNNet.Model.Student;
 import VNNet.VNNet.Service.StudentService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +24,16 @@ import java.util.List;
 @RequestMapping("/api")
 public class StudentController {
 
+    private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
+
     @Autowired
     private StudentService studentService;
+
+    @Autowired
+    private StudentRepository studentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping(value = "/parent/student/{studentId}", produces = "application/json")
     public ResponseEntity<ApiResponse<Student>> getStudentById(@PathVariable int studentId) {
@@ -70,4 +85,80 @@ public class StudentController {
         }
     }
 
+    @GetMapping("/admin/get/all/students")
+    public ResponseEntity<ApiResponse<List<Student>>> getAllStudents() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            ApiResponse<List<Student>> response = new ApiResponse<>(false, "Student not authenticated", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        String role = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .findFirst()
+                .orElse("");
+
+        if (!"admin".equals(role)) {
+            ApiResponse<List<Student>> response = new ApiResponse<>(false, "Access denied. Admin role required.", null);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        try {
+            List<Student> students = (List<Student>) studentRepository.findAll();
+
+            ApiResponse<List<Student>> response = new ApiResponse<>(true, "Students retrieved successfully", students);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error retrieving users", e);
+            ApiResponse<List<Student>> response = new ApiResponse<>(false, "Error retrieving students", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping(value = "/admin/register/student", produces = "application/json")
+    public ResponseEntity<ApiResponse<Student>> registerStudent(@RequestBody StudentRegisterRequest studentRegisterRequest) throws JsonProcessingException {
+        logger.info("Received RegisterRequest: " + studentRegisterRequest);
+        if (studentRegisterRequest.getName() == null || studentRegisterRequest.getName().isEmpty() ||
+                studentRegisterRequest.getBirthDate() == null || studentRegisterRequest.getBirthDate().isEmpty() ||
+                studentRegisterRequest.getGender() == null || studentRegisterRequest.getGender().isEmpty() ||
+                studentRegisterRequest.getClass_name() == null || studentRegisterRequest.getClass_name().isEmpty() ||
+                studentRegisterRequest.getUserId() == null || studentRegisterRequest.getTeacherId() == null ||
+                studentRegisterRequest.getAddress() == null || studentRegisterRequest.getAddress().isEmpty()) {
+            logger.warn("điền vào tất cả ô trống");
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, "Vui lòng điền vào tất cả ô trống", null));
+        }
+
+        User user = userRepository.findById(studentRegisterRequest.getUserId()).orElse(null);
+        if (user == null) {
+            logger.warn("User không tồn tại với userId: {}", studentRegisterRequest.getUserId());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, "Người dùng không tồn tại", null));
+        }
+
+        User teacher = userRepository.findById(studentRegisterRequest.getTeacherId()).orElse(null);
+        if (teacher == null) {
+            logger.warn("Teacher không tồn tại với teacherId: {}", studentRegisterRequest.getTeacherId());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, "Giáo viên không tồn tại", null));
+        }
+
+        Student newStudent = studentService.registerStudent(studentRegisterRequest.getName(),
+                studentRegisterRequest.getBirthDate(),
+                studentRegisterRequest.getGender(),
+                studentRegisterRequest.getClass_name(),
+                user,
+                studentRegisterRequest.getAddress(),
+                teacher);
+
+        if (newStudent == null) {
+            logger.error("Failed to register student");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "Failed to register student", null));
+        } else {
+            logger.info("Student registered successfully");
+            return ResponseEntity.ok(new ApiResponse<>(true, "Student registered successfully", newStudent));
+        }
+    }
 }

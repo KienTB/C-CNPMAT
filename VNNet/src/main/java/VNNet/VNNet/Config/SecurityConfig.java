@@ -37,7 +37,7 @@
                     .csrf(csrf -> csrf.disable())
                     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/user/login", "/api/user/register").permitAll()
+                            .requestMatchers("/api/user/login", "/api/user/register", "api/get/notifications").permitAll()
 
                             .requestMatchers("/api/admin/**").hasAuthority("admin")
                             .requestMatchers("/api/teacher/**").hasAuthority("teacher")

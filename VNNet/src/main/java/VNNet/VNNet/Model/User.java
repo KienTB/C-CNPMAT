@@ -24,11 +24,6 @@ public class User {
     private String name;
     @Column(name = "address")
     private String address;
-    @Column(name = "created_at")
-    private Timestamp createdAt;
-    @Column(name = "updated_at")
-    private Timestamp updatedAt;
-
     @Column(name = "teacher_id")
     private Long teacherId;
 
@@ -86,22 +81,6 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public Long getTeacherId() {

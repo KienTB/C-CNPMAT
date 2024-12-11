@@ -32,9 +32,9 @@ public class RegisterController {
                 registerRequest.getName() == null || registerRequest.getName().isEmpty() ||
                 registerRequest.getAddress() == null || registerRequest.getAddress().isEmpty() ||
                 registerRequest.getRole() == null || registerRequest.getRole().isEmpty()) {
-            logger.warn("Please complete all fields");
+            logger.warn("điền vào tất cả ô trống");
             return ResponseEntity.badRequest()
-                    .body(new ApiResponse<>(false, "Please complete all required fields", null));
+                    .body(new ApiResponse<>(false, "Vui lòng điền vào tất cả ô trống", null));
         }
 
         User newUser = userService.registerUser(registerRequest.getPhoneNumber(), registerRequest.getPassword(), registerRequest.getEmail(), registerRequest.getName(), registerRequest.getAddress(), registerRequest.getRole());

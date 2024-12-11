@@ -1,10 +1,7 @@
 package VNNet.VNNet.Model;
 
-import ch.qos.logback.core.model.Model;
 import jakarta.persistence.*;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 
-import java.security.Timestamp;
 import java.time.LocalDate;
 
 @Entity
