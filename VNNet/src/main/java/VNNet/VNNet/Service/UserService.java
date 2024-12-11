@@ -112,7 +112,6 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Tạo UserDetails mới với mật khẩu đã cập nhật
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(user.getPhoneNumber())
                 .password(user.getPassword())
@@ -130,4 +129,55 @@ public class UserService {
                 .name(user.getName())
                 .build();
     }
+
+    public User updateUser(Long userId, String phoneNumber, String email, String name, String address, String role) {
+        logger.debug("Admin updating user info for userId: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+            userRepository.findByPhoneNumber(phoneNumber)
+                    .filter(existingUser -> !existingUser.getUserId().equals(userId))
+                    .ifPresent(existingUser -> {
+                        throw new IllegalArgumentException("Phone number already in use by another user");
+                    });
+            user.setPhoneNumber(phoneNumber);
+        }
+
+        if (email != null && !email.trim().isEmpty()) {
+            userRepository.findByEmail(email)
+                    .filter(existingUser -> !existingUser.getUserId().equals(userId))
+                    .ifPresent(existingUser -> {
+                        throw new IllegalArgumentException("Email already in use by another user");
+                    });
+            user.setEmail(email);
+        }
+
+        if (name != null && !name.trim().isEmpty()) {
+            user.setName(name);
+        }
+        if (address != null && !address.trim().isEmpty()) {
+            user.setAddress(address);
+        }
+        if (role != null && isValidRole(role)) {
+            user.setRole(role);
+        } else if (role != null) {
+            throw new IllegalArgumentException("Invalid role. Must be one of: parent, teacher, admin");
+        }
+
+        logger.info("User info updated for userId: {}", userId);
+        return userRepository.save(user);
+    }
+
+    public void deleteUser(Long userId) {
+        logger.debug("Deleting user with userId: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        userRepository.delete(user);
+        logger.info("User with userId: {} deleted successfully", userId);
+    }
+
 }
