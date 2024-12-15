@@ -19,7 +19,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private  PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtService jwtService;
 
@@ -57,13 +57,11 @@ public class UserService {
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Password is required");
         }
-
         if (userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
             logger.warn("User already exists with phone number: {}", phoneNumber);
             throw new IllegalArgumentException("Phone number already registered");
         }
-
-        if(!isValidRole(role)) {
+        if (!isValidRole(role)) {
             throw new IllegalArgumentException("Invalid role. Must be one of: parent, teacher, admin");
         }
 
@@ -75,8 +73,15 @@ public class UserService {
         user.setAddress(address);
         user.setRole(role);
 
-        logger.info("Saving new user with phone number: {} and role: {}", phoneNumber, role);
-        return userRepository.save(user);
+        user = userRepository.save(user);
+
+        if ("teacher".equals(role)) {
+            user.setTeacherId(user.getUserId());
+            user = userRepository.save(user);
+        }
+
+        logger.info("User registered successfully with phone number: {} and role: {}", phoneNumber, role);
+        return user;
     }
 
     private boolean isValidRole(String role) {
@@ -89,7 +94,6 @@ public class UserService {
         if (newPassword == null || newPassword.trim().isEmpty()) {
             throw new IllegalArgumentException("New password is required");
         }
-
         if (!newPassword.equals(confirmPassword)) {
             throw new IllegalArgumentException("New password and confirm password do not match");
         }
@@ -100,11 +104,9 @@ public class UserService {
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new BadCredentialsException("Current password is incorrect");
         }
-
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new IllegalArgumentException("New password must be different from current password");
         }
-
         if (newPassword.length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters long");
         }
@@ -179,5 +181,4 @@ public class UserService {
         userRepository.delete(user);
         logger.info("User with userId: {} deleted successfully", userId);
     }
-
 }

@@ -1,6 +1,8 @@
 package VNNet.VNNet.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.security.Timestamp;
 import java.util.List;
@@ -13,6 +15,8 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
     @Column(name = "phone_number")
+    @NotNull
+    @Size(min = 3, max = 11)
     private String phoneNumber;
     @Column(name = "password")
     private String password;

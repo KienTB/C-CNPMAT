@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/admin")
 public class RegisterController {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);

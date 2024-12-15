@@ -50,4 +50,15 @@ public class StudentService {
         logger.info("Saving new student with userId: {} and teacherId: {}", userId, teacherId);
         return studentRepository.save(student);
     }
+
+    public void deleteStudent(Long studentId) {
+        logger.debug("Deleting user with studentId: {}", studentId);
+
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + studentId));
+
+        studentRepository.delete(student);
+        logger.info("User with userId: {} deleted successfully", studentId);
+    }
+
 }

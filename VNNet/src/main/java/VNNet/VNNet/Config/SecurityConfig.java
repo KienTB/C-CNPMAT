@@ -12,6 +12,7 @@
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.security.web.SecurityFilterChain;
     import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+    import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
     import org.springframework.web.cors.CorsConfiguration;
     import org.springframework.web.cors.CorsConfigurationSource;
     import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -34,16 +35,17 @@
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
             http
                     .formLogin(formLogin -> formLogin.disable())
-                    .csrf(csrf -> csrf.disable())
+                    .csrf(csrf -> csrf
+                            .ignoringRequestMatchers("/api/user/login", "/api/get/notifications", "/api/user/profile")
+                            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    )
                     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/user/login", "/api/user/register", "api/get/notifications").permitAll()
+                            .requestMatchers("/api/user/login", "api/get/notifications", "api/user/profile").permitAll()
 
                             .requestMatchers("/api/admin/**").hasAuthority("admin")
                             .requestMatchers("/api/teacher/**").hasAuthority("teacher")
                             .requestMatchers("/api/parent/**").hasAuthority("parent")
-
-                            .requestMatchers("/api/user/change-password", "/api/user/profile").authenticated()
 
                             .anyRequest().authenticated()
                     )
@@ -57,7 +59,10 @@
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration configuration = new CorsConfiguration();
-            configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
+            configuration.setAllowedOrigins(Arrays.asList(
+                    "http://10.0.108.250:8080",
+                    "http://localhost:8080"
+            ));
             configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
             configuration.setAllowCredentials(true);
@@ -65,18 +70,6 @@
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", configuration);
             return source;
-        }
-
-        @Bean
-        public WebMvcConfigurer corsConfigurer() {
-            return new WebMvcConfigurer() {
-                @Override
-                public void addCorsMappings(CorsRegistry registry) {
-                    registry.addMapping("/**")
-                            .allowedOrigins("*")
-                            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
-                }
-            };
         }
 
         @Bean
